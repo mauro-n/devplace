@@ -3,13 +3,15 @@ import { useEffect, useRef, useState } from "react";
 type props = {
   title?: string
   className?: string
+  bgColor?: string
   onItemsChange?: (input: any[]) => void
+  onItemRemove?: (item: any) => void
   isHovering?: (input: boolean) => void
 }
 
-function Quadrante({ title = "Drop Zone", className = "", onItemsChange }: any) {
-  const [items, setItems] = useState<any>([]);
-  const [isHovered, setIsHovered] = useState<any>(false);
+function Quadrante({ title = "Drop Zone", className = "", onItemsChange, onItemRemove, bgColor = "bg-gray-50" }: props) {
+  const [items, setItems] = useState<any[]>([]);
+  const [isHovered, setIsHovered] = useState(false);
   const quadranteRef = useRef<any>(null);
 
   const handleItemDrop = (item: any) => {
@@ -20,11 +22,20 @@ function Quadrante({ title = "Drop Zone", className = "", onItemsChange }: any) 
     }
   };
 
-  const removeItem = (index: any) => {
-    const newItems = items.filter((_: any, i: any) => i !== index);
+  useEffect(() => {
+    if (onItemsChange) {
+      onItemsChange(items);
+    }
+  }, [items]);
+
+  const removeItem = (index: number) => {
+    const newItems = items.filter((_, i) => i !== index);
     setItems(newItems);
     if (onItemsChange) {
       onItemsChange(newItems);
+    }
+    if (onItemRemove) {
+      onItemRemove(items[index]);
     }
   };
 
@@ -43,8 +54,7 @@ function Quadrante({ title = "Drop Zone", className = "", onItemsChange }: any) 
     };
 
     document.addEventListener('mousemove', handleMouseMove);
-    
-    // Set up the drop handler reference for direct access
+
     if (quadranteRef.current) {
       quadranteRef.current._dropHandler = handleItemDrop;
       quadranteRef.current.addEventListener('todoItemDrop', handleTodoItemDrop);
@@ -56,38 +66,40 @@ function Quadrante({ title = "Drop Zone", className = "", onItemsChange }: any) 
         quadranteRef.current.removeEventListener('todoItemDrop', handleTodoItemDrop);
       }
     };
-  }, []);
+  }, [items]);
 
   return (
     <div
       ref={quadranteRef}
       data-drop-zone="true"
       className={`
-        min-h-48 p-6 border-2 border-dashed rounded-lg transition-all duration-200
-        ${isHovered 
-          ? 'border-blue-400 bg-blue-50' 
-          : 'border-gray-300 bg-gray-50'
+      h-full p-4 border-2 border-dashed rounded-lg transition-all duration-200 max-h-[195px] flex flex-col
+      ${isHovered
+          ? 'border-blue-400 bg-blue-50'
+          : 'border-gray-300'
         }
-        ${className}
-      `}
+      ${bgColor}
+      ${className}
+    `}
+      style={{ zIndex: isHovered ? 1 : 0 }}
     >
-      <h3 className="text-lg font-semibold mb-4 text-gray-700">{title}</h3>
-      
+      <h3 className="text-lg font-semibold mb-3 text-gray-700 text-center flex-shrink-0">{title}</h3>
+
       {items.length === 0 ? (
-        <div className="text-gray-500 text-center py-8">
-          Drop todo items here
+        <div className="text-gray-400 text-center py-4 text-sm flex-grow flex items-center justify-center">
+          Drop items here
         </div>
       ) : (
-        <div className="space-y-2">
-          {items.map((item: any, index: any) => (
+        <div className="space-y-2 overflow-y-auto pr-1 flex-grow">
+          {items.map((item, index) => (
             <div
               key={index}
-              className="flex items-center justify-between p-3 bg-white rounded border border-gray-200 shadow-sm"
+              className="flex items-center justify-between p-2 bg-white rounded border border-gray-200 shadow-sm text-sm"
             >
-              <span>{item}</span>
+              <span className="flex-1 truncate">{item}</span>
               <button
                 onClick={() => removeItem(index)}
-                className="text-red-500 hover:text-red-700 font-bold text-sm px-2 py-1 rounded hover:bg-red-50"
+                className="text-red-500 hover:text-red-700 font-bold text-sm px-1 py-0.5 rounded hover:bg-red-50 ml-2 flex-shrink-0"
               >
                 ×
               </button>
@@ -95,8 +107,8 @@ function Quadrante({ title = "Drop Zone", className = "", onItemsChange }: any) 
           ))}
         </div>
       )}
-      
-      <div className="text-xs text-gray-400 mt-4">
+
+      <div className="text-xs text-gray-400 mt-3 text-center flex-shrink-0">
         {items.length} item{items.length !== 1 ? 's' : ''}
       </div>
     </div>

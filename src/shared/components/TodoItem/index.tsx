@@ -7,6 +7,7 @@ function TodoItem({ children = "Todo item", onDrag, onDrop, className = "", id }
   const dragRef = useRef<any>(null);
 
   const handleMouseDown = (e: any) => {
+    if (e.target !== e.currentTarget) return;
     setIsDragging(true);
     setDragStart({
       x: e.clientX - position.x,
@@ -26,11 +27,7 @@ function TodoItem({ children = "Todo item", onDrag, onDrop, className = "", id }
   };
 
   const handleMouseUp = (e: any) => {
-    if (!isDragging) return
-
-    const currentX = e.clientX - dragStart.x;
-    const currentY = e.clientY - dragStart.y - window.scrollY;
-    setDragStart({ x: currentX, y: currentY })
+    if (!isDragging) return;
 
     const elementBelow = document.elementFromPoint(e.clientX, e.clientY);
     const dropZone = elementBelow?.closest('[data-drop-zone]');
@@ -45,7 +42,7 @@ function TodoItem({ children = "Todo item", onDrag, onDrop, className = "", id }
         });
         dropZone.dispatchEvent(dropEvent);
       }
-      onDrop()
+      onDrop();
     }
 
     setIsDragging(false);
@@ -71,15 +68,16 @@ function TodoItem({ children = "Todo item", onDrag, onDrop, className = "", id }
         inline-block p-3 bg-white border border-gray-200 rounded-lg shadow-sm
         select-none
         ${isDragging
-          ? 'cursor-grabbing shadow-lg scale-105 z-50'
+          ? 'cursor-grabbing shadow-lg scale-105 z-100'
           : 'cursor-grab hover:shadow-md'
         }
         ${className}
       `}
       style={{
         transform: `translate(${position.x}px, ${position.y}px)`,
-        //position: isDragging ? 'fixed' : 'relative',
         pointerEvents: isDragging ? 'none' : 'auto',
+        zIndex: isDragging ? 9999 : 'auto',
+        //position: isDragging ? 'absolute' : 'relative',
       }}
       onMouseDown={handleMouseDown}
       data-todo-id={id}
