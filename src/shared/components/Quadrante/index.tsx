@@ -1,3 +1,4 @@
+import { X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 type props = {
@@ -73,20 +74,17 @@ function Quadrante({ title = "Drop Zone", className = "", onItemsChange, onItemR
       ref={quadranteRef}
       data-drop-zone="true"
       className={`
-      h-full p-4 border-2 border-dashed rounded-lg transition-all duration-200 max-h-[195px] flex flex-col
-      ${isHovered
-          ? 'border-blue-400 bg-blue-50'
-          : 'border-gray-300'
-        }
-      ${bgColor}
-      ${className}
-    `}
+        h-full p-4 border-2 border-dashed rounded-lg transition-all duration-200 max-h-[195px] flex flex-col
+        ${bgColor} 
+        ${className}
+        ${isHovered ? '!border-blue-300' : ''}
+      `}
       style={{ zIndex: isHovered ? 1 : 0 }}
     >
-      <h3 className="text-lg font-semibold mb-3 text-gray-700 text-center flex-shrink-0">{title}</h3>
+      <h3 className="text-sm font-semibold mb-3 text-gray-700 text-center flex-shrink-0">{title}</h3>
 
       {items.length === 0 ? (
-        <div className="text-gray-400 text-center py-4 text-sm flex-grow flex items-center justify-center">
+        <div className="text-gray-400 text-center py-4 text-xs flex-grow flex items-center justify-center">
           Drop items here
         </div>
       ) : (
@@ -94,14 +92,14 @@ function Quadrante({ title = "Drop Zone", className = "", onItemsChange, onItemR
           {items.map((item, index) => (
             <div
               key={index}
-              className="flex items-center justify-between p-2 bg-white rounded border border-gray-200 shadow-sm text-sm"
+              className="flex items-center justify-between p-2 bg-white rounded border border-gray-200 shadow-sm text-xs group hover:bg-gray-50 transition-colors duration-150"
             >
-              <span className="flex-1 truncate">{item}</span>
+              <span className="flex-1 truncate text-gray-900">{item}</span>
               <button
                 onClick={() => removeItem(index)}
-                className="text-red-500 hover:text-red-700 font-bold text-sm px-1 py-0.5 rounded hover:bg-red-50 ml-2 flex-shrink-0"
+                className="text-gray-400 hover:text-red-500 transition-colors duration-200 opacity-0 group-hover:opacity-100 ml-2 flex-shrink-0"
               >
-                ×
+                <X size={12} />
               </button>
             </div>
           ))}
